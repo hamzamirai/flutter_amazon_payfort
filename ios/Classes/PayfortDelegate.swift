@@ -89,17 +89,21 @@ public class PayFortDelegate: NSObject, PKPaymentAuthorizationViewControllerDele
         self.requestData = requestData
         self.viewController = viewController
         
-        let amount = decimal(with: (requestData["amount"] as? String) ?? "0.0")
+       // let amount = decimal(with: (requestData["amount"] as? String) ?? "0.0")
+        let amount = (requestData["amount"] as? String) ?? "0.0"
         
         let paymentRequest = PKPaymentRequest()
         paymentRequest.merchantIdentifier = (requestData["apple_pay_merchant_id"] as? String) ?? "";
         if #available(iOS 12.1.1, *) {
-            paymentRequest.supportedNetworks = [.visa, .masterCard, .mada, .amex]
+            paymentRequest.supportedNetworks = [.visa, .masterCard, .mada, .amex, .discover]
         } else {
             paymentRequest.supportedNetworks = [.visa, .masterCard, .amex]
         };
-        paymentRequest.merchantCapabilities = .capability3DS;
-        paymentRequest.paymentSummaryItems = [PKPaymentSummaryItem(label: (requestData["order_description"] as? String) ?? "", amount: amount)]
+        
+        paymentRequest.merchantCapabilities = [.capability3DS, .capabilityEMV];
+        
+        paymentRequest.paymentSummaryItems = [PKPaymentSummaryItem(label: (requestData["order_description"] as? String) ?? "", amount: NSDecimalNumber(string: amount))]
+        
         paymentRequest.countryCode = (requestData["country_code"] as? String) ?? "";
         paymentRequest.currencyCode = (requestData["currency"] as? String) ?? "";
         
@@ -113,7 +117,7 @@ public class PayFortDelegate: NSObject, PKPaymentAuthorizationViewControllerDele
         
         let asyncSuccessful = payment.token.paymentData.count != 0
         
-        let amount = (Double((requestData?["amount"] as? String) ?? "0.0") ?? 0.0) * 100
+        let amount = (Double((requestData?["amount"] as? String) ?? "0.0") ?? 0.0) // * 100
         
         if asyncSuccessful {
             
@@ -191,17 +195,30 @@ public class PayFortDelegate: NSObject, PKPaymentAuthorizationViewControllerDele
     }
     
     
+//    func ccSha256(data: Data?) -> Data {
+//        var digest = Data(count: Int(CC_SHA256_DIGEST_LENGTH))
+//        
+//        _ = digest.withUnsafeMutableBytes({ digestBytes in
+//            data?.withUnsafeBytes({ stringBytes in
+//                CC_SHA256(stringBytes, CC_LONG(data?.count ?? 0), digestBytes)
+//            })
+//        })
+//        return digest
+//    }
+    
     func ccSha256(data: Data?) -> Data {
         var digest = Data(count: Int(CC_SHA256_DIGEST_LENGTH))
         
-        _ = digest.withUnsafeMutableBytes({ digestBytes in
-            data?.withUnsafeBytes({ stringBytes in
-                CC_SHA256(stringBytes, CC_LONG(data?.count ?? 0), digestBytes)
-            })
-        })
+        _ = digest.withUnsafeMutableBytes { digestBytes in
+            data?.withUnsafeBytes { stringBytes in
+                // Convert UnsafeRawBufferPointer to UnsafeRawPointer
+                if let baseAddress = stringBytes.baseAddress, let digestBytesBaseAddress = digestBytes.baseAddress {
+                    CC_SHA256(baseAddress, CC_LONG(data?.count ?? 0), digestBytesBaseAddress.assumingMemoryBound(to: UInt8.self))
+                }
+            }
+        }
         return digest
     }
-    
     
     private func decimal(with string: String) -> NSDecimalNumber {
         let formatter = NumberFormatter()

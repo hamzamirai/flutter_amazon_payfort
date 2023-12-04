@@ -2,7 +2,7 @@ class FortRequest {
   /// The transaction’s amount.
   /// Each currency has predefined allowed decimal points that should be taken into consideration when sending the amount.
   ///
-  final num amount;
+  final String amount;
 
   /// The customer’s name.
   ///
@@ -73,7 +73,7 @@ class FortRequest {
   });
 
   FortRequest copyWith({
-    num? amount,
+    String? amount,
     String? customerName,
     String? customerEmail,
     String? orderDescription,
@@ -106,7 +106,7 @@ class FortRequest {
 
   Map<String, dynamic> asMap() {
     return <String, dynamic>{
-      'amount': '$amount',
+      'amount': amount,
       'customer_name': customerName,
       'customer_email': customerEmail,
       'order_description': orderDescription,
