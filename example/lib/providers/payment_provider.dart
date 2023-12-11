@@ -42,6 +42,7 @@ class PaymentProvider extends DefaultChangeNotifier {
         merchantReference: const Uuid().v4(),
         currency: 'SAR',
         customerIp: (await _info.getWifiIP() ?? ''),
+        language: 'ar',
       );
 
       _payfort.callPayFort(
@@ -62,8 +63,7 @@ class PaymentProvider extends DefaultChangeNotifier {
     required FailedCallback onFailed,
   }) async {
     try {
-      SdkTokenResponse? sdkTokenResponse =
-          await _generateSdkToken(isApplePay: true);
+      SdkTokenResponse? sdkTokenResponse = await _generateSdkToken(isApplePay: true);
 
       if (sdkTokenResponse != null && sdkTokenResponse.sdkToken == null) {
         onFailed(sdkTokenResponse.responseMessage ?? '');
@@ -81,6 +81,7 @@ class PaymentProvider extends DefaultChangeNotifier {
         merchantReference: const Uuid().v4(),
         currency: 'USD',
         customerIp: (await _info.getWifiIP() ?? ''),
+        language: 'ar',
       );
 
       _payfort.callPayFortForApplePay(
@@ -101,12 +102,9 @@ class PaymentProvider extends DefaultChangeNotifier {
     try {
       loading = true;
 
-      var accessCode = isApplePay
-          ? FortConstants.applePayAccessCode
-          : FortConstants.accessCode;
-      var shaRequestPhrase = isApplePay
-          ? FortConstants.applePayShaRequestPhrase
-          : FortConstants.shaRequestPhrase;
+      var accessCode = isApplePay ? FortConstants.applePayAccessCode : FortConstants.accessCode;
+      var shaRequestPhrase =
+          isApplePay ? FortConstants.applePayShaRequestPhrase : FortConstants.shaRequestPhrase;
       String? deviceId = await _payfort.getDeviceId();
 
       /// Step 2:  Generate the Signature
