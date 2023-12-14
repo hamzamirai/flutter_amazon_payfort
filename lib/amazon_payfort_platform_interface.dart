@@ -40,8 +40,10 @@ abstract class AmazonPayfortPlatform extends PlatformInterface {
 
   Future<void> callPayFortForApplePay({
     required FortRequest request,
+    required Map<String, dynamic> paymentConfiguration,
     required String applePayMerchantId,
     required String countryIsoCode,
+    required List<PaymentItem> paymentItems,
     required ApplePayResultCallback callback,
   });
 }

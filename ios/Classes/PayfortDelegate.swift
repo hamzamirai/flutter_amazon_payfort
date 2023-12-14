@@ -84,15 +84,17 @@ public class PayFortDelegate: NSObject, PKPaymentAuthorizationViewControllerDele
         )
     }
     
-    public func callPayFortForApplePay(requestData : Dictionary<String, Any>, viewController : UIViewController){
+    public func callPayFortForApplePay(requestData : Dictionary<String, Any>, paymentConfiguration: String, paymentItems: [[String: Any?]], viewController : UIViewController){
         
         self.requestData = requestData
         self.viewController = viewController
         
-       // let amount = decimal(with: (requestData["amount"] as? String) ?? "0.0")
+        // let amount = decimal(with: (requestData["amount"] as? String) ?? "0.0")
         let amount = (requestData["amount"] as? String) ?? "0.0"
         
+        // Create payment request and include summary items
         let paymentRequest = PKPaymentRequest()
+        
         paymentRequest.merchantIdentifier = (requestData["apple_pay_merchant_id"] as? String) ?? "";
         if #available(iOS 12.1.1, *) {
             paymentRequest.supportedNetworks = [.visa, .masterCard, .mada, .amex, .discover]
@@ -102,10 +104,51 @@ public class PayFortDelegate: NSObject, PKPaymentAuthorizationViewControllerDele
         
         paymentRequest.merchantCapabilities = [.capability3DS, .capabilityEMV];
         
-        paymentRequest.paymentSummaryItems = [PKPaymentSummaryItem(label: (requestData["order_description"] as? String) ?? "", amount: NSDecimalNumber(string: amount))]
+//        paymentRequest.paymentSummaryItems = [PKPaymentSummaryItem(label: (requestData["order_description"] as? String) ?? "", amount: NSDecimalNumber(string: amount))]
+        
+ 
+        paymentRequest.paymentSummaryItems = paymentItems.map { item in
+          return PKPaymentSummaryItem(
+            label: item["label"] as! String,
+            amount: NSDecimalNumber(string: (item["amount"] as! String), locale:["NSLocaleDecimalSeparator": "."]),
+            type:  ((item["status"] as? String ?? "final_price") == "final_price" ? PKPaymentSummaryItemType.final : PKPaymentSummaryItemType.pending)
+          )
+        }
         
         paymentRequest.countryCode = (requestData["country_code"] as? String) ?? "";
         paymentRequest.currencyCode = (requestData["currency"] as? String) ?? "";
+        
+        // Specify the required contact fields
+        paymentRequest.requiredShippingContactFields = [.name, .emailAddress, .phoneNumber]
+
+        // Set the display name for your merchant
+        // paymentRequest.displayName = "Dealyno"
+        
+//        // Add merchant capabilities.
+//        if let merchantCapabilities = paymentConfiguration["merchantCapabilities"] as? Array<String> {
+//          paymentRequest.merchantCapabilities = PKMerchantCapability(merchantCapabilities.compactMap { capabilityString in
+//            PKMerchantCapability.fromString(capabilityString)
+//          })
+//        }
+//        
+//        // Include the shipping fields required.
+//        if let requiredShippingFields = paymentConfiguration["requiredShippingContactFields"] as? Array<String> {
+//          paymentRequest.requiredShippingContactFields = Set(requiredShippingFields.compactMap { shippingField in
+//            PKContactField.fromString(shippingField)
+//          })
+//        }
+//        
+//        // Include the billing fields required.
+//        if let requiredBillingFields = paymentConfiguration["requiredBillingContactFields"] as? Array<String> {
+//          paymentRequest.requiredBillingContactFields = Set(requiredBillingFields.compactMap { billingField in
+//            PKContactField.fromString(billingField)
+//          })
+//        }
+//        
+        // Add supported networks if available.
+//        if let supportedNetworks = supportedNetworks(from: paymentConfigurationString) {
+//          paymentRequest.supportedNetworks = supportedNetworks
+//        }
         
         let applePayController = PKPaymentAuthorizationViewController(paymentRequest: paymentRequest)
         applePayController?.delegate = self
@@ -177,10 +220,20 @@ public class PayFortDelegate: NSObject, PKPaymentAuthorizationViewControllerDele
     }
     
     public func paymentAuthorizationViewControllerDidFinish(_ controller: PKPaymentAuthorizationViewController) {
-        requestData = nil
-        viewController = nil
-        controller.dismiss(animated: true)
-    }
+          requestData = nil
+          viewController = nil
+          controller.dismiss(animated: true, completion: nil)
+ 
+          // Send message to Flutter when the Apple Pay sheet is closed
+          self.channel?.invokeMethod("apple_pay_closed", arguments: nil)
+      }
+ 
+      
+//    public func paymentAuthorizationViewControllerDidFinish(_ controller: PKPaymentAuthorizationViewController) {
+//        requestData = nil
+//        viewController = nil
+//        controller.dismiss(animated: true)
+//    }
     
     
     public func getUDID() -> String? {

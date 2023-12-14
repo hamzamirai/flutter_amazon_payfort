@@ -61,6 +61,7 @@ class PaymentProvider extends DefaultChangeNotifier {
   Future<void> paymentWithApplePay({
     required SucceededCallback onSucceeded,
     required FailedCallback onFailed,
+    required CancelledCallback onCancelled,
   }) async {
     try {
       SdkTokenResponse? sdkTokenResponse = await _generateSdkToken(isApplePay: true);
@@ -91,7 +92,10 @@ class PaymentProvider extends DefaultChangeNotifier {
         callback: ApplePayResultCallback(
           onSucceeded: onSucceeded,
           onFailed: onFailed,
+          onCancelled: onCancelled,
         ),
+        paymentItems: [],
+        paymentConfiguration: {},
       );
     } catch (e) {
       onFailed(e.toString());

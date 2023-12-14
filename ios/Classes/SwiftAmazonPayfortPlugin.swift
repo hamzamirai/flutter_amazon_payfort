@@ -47,23 +47,47 @@ public class SwiftAmazonPayfortPlugin: NSObject, FlutterPlugin {
         } else if call.method == "callPayFort" {
             
             if let requestData = call.arguments as? Dictionary<String, Any>{
-                let viewController = UIApplication.shared.keyWindow?.rootViewController ?? UIViewController()
-                delegate.callPayFort(requestData: requestData, viewController: viewController)
+                // Deprecated: let viewController = UIApplication.shared.keyWindow?.rootViewController ?? UIViewController()
+               
+                var viewController: UIViewController?
+
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                    viewController = windowScene.windows.first?.rootViewController
+                } else {
+                    viewController = UIViewController()
+                }
+                
+                if viewController != nil {
+                    delegate.callPayFort(requestData: requestData, viewController: viewController!)
+                }
+                
             }
-            
+
         } else if call.method == "callPayFortForApplePay" {
             
             if let requestData = call.arguments as? Dictionary<String, Any>{
-                let viewController = UIApplication.shared.keyWindow?.rootViewController ?? UIViewController()
-                delegate.callPayFortForApplePay(requestData: requestData, viewController: viewController)
+                // Deprecated: let viewController = UIApplication.shared.keyWindow?.rootViewController ?? UIViewController()
+                
+                var viewController: UIViewController?
+
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                    viewController = windowScene.windows.first?.rootViewController
+                } else {
+                    viewController = UIViewController()
+                }
+                
+                if viewController != nil {
+                    delegate.callPayFortForApplePay(requestData: requestData, paymentConfiguration: requestData["payment_profile"] as! String, paymentItems: requestData["payment_items"] as! [[String: Any?]], viewController: viewController!)
+                }
+                
+                
             }
             
         } else {
             result(FlutterMethodNotImplemented)
         }
     }
-    
-    
+
     private func processPayFortOptions(arguments: Dictionary<String, Any>) -> PayFortOptions {
         let options =  PayFortOptions(
             environment : arguments["environment"] as? String ?? "",
@@ -73,7 +97,5 @@ public class SwiftAmazonPayfortPlugin: NSObject, FlutterPlugin {
         )
         return options
     }
-    
+
 }
-
-

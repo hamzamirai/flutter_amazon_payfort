@@ -97,6 +97,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 onFailed: (error) {
                   _showSnackBar(error);
                 },
+                onCancelled: () {},
               );
             },
           ),

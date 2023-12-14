@@ -4,6 +4,8 @@ import 'package:amazon_payfort/src/helpers/exceptions.dart';
 import 'package:amazon_payfort/src/models/fort_request.dart';
 import 'package:amazon_payfort/src/models/pay_fort_options.dart';
 
+import 'amazon_payfort.dart';
+
 export 'src/enums/fort_environment.dart';
 
 export 'src/models/models.dart';
@@ -86,8 +88,10 @@ class AmazonPayfort {
   /// make payments using different Apple devices via the Amazon Payment Services iOS SDK.
   Future<void> callPayFortForApplePay({
     required FortRequest request,
+    required Map<String, dynamic> paymentConfiguration,
     required String countryIsoCode,
     required String applePayMerchantId,
+    required List<PaymentItem> paymentItems,
     required ApplePayResultCallback callback,
   }) async {
     if (_isInitialize) {
@@ -96,6 +100,8 @@ class AmazonPayfort {
         countryIsoCode: countryIsoCode,
         applePayMerchantId: applePayMerchantId,
         callback: callback,
+        paymentItems: paymentItems,
+        paymentConfiguration: paymentConfiguration,
       );
     } else {
       throw PayFortNotInitialzedException();

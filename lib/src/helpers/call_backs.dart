@@ -21,6 +21,11 @@ class PayFortResultCallback {
 class ApplePayResultCallback {
   final SucceededCallback onSucceeded;
   final FailedCallback onFailed;
+  final CancelledCallback onCancelled;
 
-  ApplePayResultCallback({required this.onSucceeded, required this.onFailed});
+  ApplePayResultCallback({
+    required this.onSucceeded,
+    required this.onFailed,
+    required this.onCancelled,
+  });
 }
