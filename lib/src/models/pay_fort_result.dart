@@ -154,4 +154,10 @@ class PayFortResult {
       'phoneNumber': phoneNumber,
     };
   }
+
+  @override
+  String toString() {
+    return 'PayFortResult{responseCode: $responseCode, responseMessage: $responseMessage, command: $command, merchantReference: $merchantReference, amount: $amount, currency: $currency, fortId: $fortId, customerEmail: $customerEmail, sdkToken: $sdkToken, tokenName: $tokenName, paymentOption: $paymentOption, eci: $eci, authorizationCode: $authorizationCode, orderDescription: $orderDescription, customerIp: $customerIp, customerName: $customerName, expiryDate: $expiryDate, cardNumber: $cardNumber, status: $status, phoneNumber: $phoneNumber}';
+  }
+
 }

@@ -9,7 +9,8 @@ class PayFortApi {
   PayFortApi._();
 
   static Future<SdkTokenResponse?> generateSdkToken(
-      SdkTokenRequest request) async {
+    SdkTokenRequest request,
+  ) async {
     var response = await post(
       Uri.parse(FortConstants.environment.paymentApi),
       headers: {'Content-Type': 'application/json'},

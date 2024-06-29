@@ -5,7 +5,6 @@ import 'package:amazon_payfort/src/helpers/local_platform.dart';
 import 'package:flutter/services.dart';
 
 import 'amazon_payfort_platform_interface.dart';
-import 'src/models/payment_item.dart';
 
 /// An implementation of [AmazonPayfortPlatform] that uses method channels.
 class MethodChannelAmazonPayfort extends AmazonPayfortPlatform {

@@ -34,15 +34,15 @@ class PaymentProvider extends DefaultChangeNotifier {
       /// Step 4: Processing Payment [Amount multiply with 100] ex. 10 * 100 = 1000 (10 SAR)
       /// Amount value send always round ex. [100] not [100.00, 100.21]
       FortRequest request = FortRequest(
-        amount: '10.00',
+        amount: '100.99',
         customerName: 'Test Customer',
         customerEmail: 'test@customer.com',
         orderDescription: 'Test Order',
         sdkToken: sdkTokenResponse?.sdkToken ?? '',
         merchantReference: const Uuid().v4(),
-        currency: 'SAR',
+        currency: 'USD',
         customerIp: (await _info.getWifiIP() ?? ''),
-        language: 'ar',
+        language: 'en',
       );
 
       _payfort.callPayFort(
@@ -72,17 +72,16 @@ class PaymentProvider extends DefaultChangeNotifier {
       }
 
       /// Step 4: Processing Payment [Don't multiply with 100]
-      /// Amount value send always round ex. [100] not [100.00, 100.21]
       FortRequest request = FortRequest(
         amount: '10.99',
         customerName: 'Dealyno',
-        customerEmail: 'payment@dealyno.com',
+        customerEmail: 'payment@example.com',
         orderDescription: 'Test Order',
         sdkToken: sdkTokenResponse?.sdkToken ?? '',
         merchantReference: const Uuid().v4(),
         currency: 'USD',
         customerIp: (await _info.getWifiIP() ?? ''),
-        language: 'ar',
+        language: 'en',
       );
 
       _payfort.callPayFortForApplePay(

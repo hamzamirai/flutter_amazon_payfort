@@ -15,7 +15,7 @@ public class PayFortDelegate: NSObject, PKPaymentAuthorizationViewControllerDele
     private var viewController : UIViewController?
     
     
-    func initialize(options: PayFortOptions, channel: FlutterMethodChannel){
+    func initialize(options: PayFortOptions, channel: FlutterMethodChannel) {
         self.options = options
         self.channel = channel
         let environment = getEnvironment(environment: self.options?.environment)
@@ -33,8 +33,7 @@ public class PayFortDelegate: NSObject, PKPaymentAuthorizationViewControllerDele
         }
     }
     
-    public func callPayFort(requestData : Dictionary<String, Any>, viewController : UIViewController){
-        
+    public func callPayFort(requestData : Dictionary<String, Any>, viewController : UIViewController) {
         var request = [String : String]()
         request["command"] = "PURCHASE";
         request["customer_name"] = (requestData["customer_name"] as? String) ?? "";
@@ -88,25 +87,16 @@ public class PayFortDelegate: NSObject, PKPaymentAuthorizationViewControllerDele
         
         self.requestData = requestData
         self.viewController = viewController
-        
-        // let amount = decimal(with: (requestData["amount"] as? String) ?? "0.0")
-        let amount = (requestData["amount"] as? String) ?? "0.0"
-        
+
         // Create payment request and include summary items
         let paymentRequest = PKPaymentRequest()
         
         paymentRequest.merchantIdentifier = (requestData["apple_pay_merchant_id"] as? String) ?? "";
-        if #available(iOS 12.1.1, *) {
-            paymentRequest.supportedNetworks = [.visa, .masterCard, .mada, .amex, .discover]
-        } else {
-            paymentRequest.supportedNetworks = [.visa, .masterCard, .amex]
-        };
         
+        paymentRequest.supportedNetworks = [.visa, .masterCard, .mada, .amex, .discover]
+       
         paymentRequest.merchantCapabilities = [.capability3DS, .capabilityEMV];
         
-//        paymentRequest.paymentSummaryItems = [PKPaymentSummaryItem(label: (requestData["order_description"] as? String) ?? "", amount: NSDecimalNumber(string: amount))]
-        
- 
         paymentRequest.paymentSummaryItems = paymentItems.map { item in
           return PKPaymentSummaryItem(
             label: item["label"] as! String,
@@ -119,37 +109,9 @@ public class PayFortDelegate: NSObject, PKPaymentAuthorizationViewControllerDele
         paymentRequest.currencyCode = (requestData["currency"] as? String) ?? "";
         
         // Specify the required contact fields
-        paymentRequest.requiredShippingContactFields = [.name, .emailAddress, .phoneNumber]
+        paymentRequest.requiredShippingContactFields = [.name, .emailAddress, .phoneNumber, .postalAddress]
 
-        // Set the display name for your merchant
-        // paymentRequest.displayName = "Dealyno"
-        
-//        // Add merchant capabilities.
-//        if let merchantCapabilities = paymentConfiguration["merchantCapabilities"] as? Array<String> {
-//          paymentRequest.merchantCapabilities = PKMerchantCapability(merchantCapabilities.compactMap { capabilityString in
-//            PKMerchantCapability.fromString(capabilityString)
-//          })
-//        }
-//        
-//        // Include the shipping fields required.
-//        if let requiredShippingFields = paymentConfiguration["requiredShippingContactFields"] as? Array<String> {
-//          paymentRequest.requiredShippingContactFields = Set(requiredShippingFields.compactMap { shippingField in
-//            PKContactField.fromString(shippingField)
-//          })
-//        }
-//        
-//        // Include the billing fields required.
-//        if let requiredBillingFields = paymentConfiguration["requiredBillingContactFields"] as? Array<String> {
-//          paymentRequest.requiredBillingContactFields = Set(requiredBillingFields.compactMap { billingField in
-//            PKContactField.fromString(billingField)
-//          })
-//        }
-//        
-        // Add supported networks if available.
-//        if let supportedNetworks = supportedNetworks(from: paymentConfigurationString) {
-//          paymentRequest.supportedNetworks = supportedNetworks
-//        }
-        
+
         let applePayController = PKPaymentAuthorizationViewController(paymentRequest: paymentRequest)
         applePayController?.delegate = self
         self.viewController?.present(applePayController!, animated: true)
@@ -277,7 +239,7 @@ public class PayFortDelegate: NSObject, PKPaymentAuthorizationViewControllerDele
         let formatter = NumberFormatter()
         formatter.generatesDecimalNumbers = true
         let amount = formatter.number(from: string) as? NSDecimalNumber ?? 0
-        return amount;
+        return amount
     }
     
 }
